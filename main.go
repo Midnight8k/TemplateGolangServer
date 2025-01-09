@@ -12,19 +12,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const urlServer = ":8080"
+
 func main() {
 	db, err := gorm.Open(sqlite.Open("blank.db"), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %s", err)
-	}
-
-	if err := db.AutoMigrate(&entities.Message{}); err != nil {
-		log.Fatalf("Failed to migrate database schema: %s", err)
-	}
-
-	if err := db.AutoMigrate(&entities.User{}); err != nil {
-		log.Fatalf("Failed to migrate database schema: %s", err)
-	}
+	ErrorHandling(err, db)
 
 	// Define the message creation
 	messageRepo := &repository.GormMessageRepository{DB: db}
@@ -38,12 +30,29 @@ func main() {
 
 	// Define the HTTP server and routes.
 	http.HandleFunc("/message", messageHandler.CreateMessage)
+	http.HandleFunc("/messages", messageHandler.GetAllMessages)
 	http.HandleFunc("/user", userHandler.CreateUser)
 
 	// Start the server.
-	const addr = ":8080"
-	log.Printf("Server running on %s", addr)
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	log.Printf("Server running on %s", urlServer)
+	if err := http.ListenAndServe(urlServer, nil); err != nil {
 		log.Fatalf("Could not start server: %s", err)
+	}
+}
+
+// HTTP and Database connection Error hangling fuction
+// - Error
+// - DB
+func ErrorHandling(err error, db *gorm.DB) {
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %s", err)
+	}
+
+	if err := db.AutoMigrate(&entities.Message{}); err != nil {
+		log.Fatalf("Failed to migrate database schema: %s", err)
+	}
+
+	if err := db.AutoMigrate(&entities.User{}); err != nil {
+		log.Fatalf("Failed to migrate database schema: %s", err)
 	}
 }

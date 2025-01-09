@@ -36,3 +36,21 @@ func (h *MessageHandler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(post)
 }
+
+func (h *MessageHandler) GetAllMessages(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Failed to get Messages", http.StatusInternalServerError)
+		return
+	}
+
+	messages, err := h.SERVICE.GetAllMessages()
+	if err != nil {
+		http.Error(w, "Unable to get messages", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(messages); err != nil {
+		http.Error(w, "Could not create response", http.StatusInternalServerError)
+	}
+}
