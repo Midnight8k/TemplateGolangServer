@@ -9,5 +9,6 @@ type Message struct {
 // Define the behaviour of message
 type MessageService interface {
 	SaveMessage(message *Message) error
+	GetMessageById(id int64) (*Message, error)
 	GetAllMessages() ([]Message, error)
 }

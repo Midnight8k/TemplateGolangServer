@@ -13,9 +13,10 @@ import (
 )
 
 const urlServer = ":8080"
+const dbFile = "blank.db"
 
 func main() {
-	db, err := gorm.Open(sqlite.Open("blank.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbFile), &gorm.Config{})
 	ErrorHandling(err, db)
 
 	// Define the message creation
@@ -29,7 +30,7 @@ func main() {
 	userHandler := &httpLocal.UserHandler{SERVICE: userUseCase}
 
 	// Define the HTTP server and routes.
-	http.HandleFunc("/message", messageHandler.CreateMessage)
+	http.HandleFunc("/message", messageHandler.HandleMessage)
 	http.HandleFunc("/messages", messageHandler.GetAllMessages)
 	http.HandleFunc("/user", userHandler.CreateUser)
 
